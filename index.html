@@ -338,7 +338,7 @@ footer b{color:var(--pop)}
       <p class="login-copy" id="loginCopy"></p>
       <label class="field" data-mode="setup"><span>GitHub token <em>(one time only)</em></span>
         <input type="password" name="token" autocomplete="off" spellcheck="false" placeholder="github_pat_…">
-        <span class="hint"><span>Need one? <a href="https://github.com/settings/personal-access-tokens/new?name=ai-photo-prompts-owner&amp;target_name=Mrvishalpatil16-tech&amp;expires_in=none&amp;contents=write" target="_blank" rel="noopener">Create a token</a> with access to <b>ai-photo-prompts</b> and <b>Contents: Read and write</b>.</span></span>
+        <span class="hint"><span>Need one? <a href="https://github.com/settings/personal-access-tokens/new?name=ai-photo-prompts-owner&amp;target_name=Mrvishalpatil16-tech&amp;expires_in=365&amp;contents=write" target="_blank" rel="noopener">Create a token</a> with access to <b>ai-photo-prompts</b> and <b>Contents: Read and write</b>.</span></span>
       </label>
       <label class="field"><span id="pwLabel">Password</span>
         <input type="password" name="pw" autocomplete="current-password" placeholder="••••••••">
@@ -628,7 +628,7 @@ LF.addEventListener('submit',async e=>{
   const pw=LE.pw.value, btn=$('#loginBtn'), label=btn.textContent;
   if(!pw){LE.pw.focus();return}
   if(mode!=='login'){
-    if(pw.length<8)return loginError('Use at least 8 characters.');
+    if(pw.length<12)return loginError('Use at least 12 characters.');
     if(pw!==LE.pw2.value)return loginError('Passwords do not match.');
     if(mode==='setup'&&!LE.token.value.trim())return loginError('Paste your GitHub token.');
   }
