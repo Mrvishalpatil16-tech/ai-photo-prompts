@@ -86,6 +86,21 @@ h1 .hl{color:#0d0d0f;background:var(--pop);padding:0 .08em .02em;border-radius:.
 .pill:hover{transform:translate(-2px,-3px) rotate(-1deg);box-shadow:5px 6px 0 #0d0d0f}
 @media (prefers-reduced-motion:reduce){.mq{overflow-x:auto}.track{animation:none}}
 
+/* owner gating */
+body:not(.owner) .owner-only{display:none!important}
+.top-btns{display:flex;gap:10px}
+body.owner #lock{background:var(--pop)}
+.login-copy{margin:0;color:var(--ink-2)}
+.login-err{margin:0;padding:10px 12px;border-radius:10px;background:#ffe0e0;color:#8a1010;font-size:13.5px;font-weight:500}
+.howto{font-size:13.5px;color:var(--ink-2)}
+.howto summary{cursor:pointer;font-weight:700}
+.howto ol{margin:10px 0 0;padding-left:20px;display:grid;gap:4px}
+.howto a{color:var(--hero);font-weight:700}
+:root[data-theme="dark"] .howto a{color:#9fa6ff}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .howto a{color:#9fa6ff}}
+.save-state.busy i{background:var(--pop);animation:blink .8s infinite alternate}
+@keyframes blink{to{opacity:.3}}
+
 /* menu */
 details.menu{position:relative}
 details.menu summary{list-style:none}
@@ -222,21 +237,21 @@ footer b{color:var(--pop)}
   <div class="wrap">
     <div class="topline">
       <span><span class="dot"></span>Prompt Library · Vol. 01</span>
-      <button class="theme" id="theme" aria-label="Toggle dark mode" title="Toggle theme">
+      <span class="top-btns"><button class="theme" id="lock" data-act="lock" aria-label="Owner login" title="Owner login"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10.5" width="16" height="10.5" rx="2.5"/><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/></svg></button><button class="theme" id="theme" aria-label="Toggle dark mode" title="Toggle theme">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
-      </button>
+      </button></span>
     </div>
     <div class="hero-grid">
     <h1>AI Photo<span class="line2"><span class="hl">Prompts</span><span class="sticker" aria-hidden="true"><span><b id="s-sticker">0</b>ready to copy</span></span></span></h1>
       <div class="side">
-        <p class="lead">Portraits, posters, collages and couple shots. Search, filter by style, copy in one click, and add your own.</p>
+        <p class="lead">Portraits, posters, collages and couple shots. Search, filter by style, and copy any prompt in one click.</p>
         <ul class="stats">
           <li><b id="s-total">0</b><span>Prompts</span></li>
           <li><b id="s-cats">0</b><span>Styles</span></li>
-          <li><b id="s-mine">0</b><span>Yours</span></li>
+          <li><b id="s-mine">0</b><span>New</span></li>
         </ul>
-      <div class="actions">
-        <span class="save-state" id="saveState"><i></i><span>Saved in this browser</span></span>
+      <div class="actions owner-only">
+        <span class="save-state" id="saveState"><i></i><span>Owner mode</span></span>
         <button class="btn pop" data-act="add">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Add prompt
         </button>
@@ -281,9 +296,9 @@ footer b{color:var(--pop)}
   <div class="grid" id="grid"></div>
 </main>
 
-<footer><div class="wrap">Card numbers: A = Album 1 · B = Album 2 · M = added by you. Changes save automatically in this browser — use <b>Backup → Save as HTML file</b> to keep a portable copy with your prompts built in. Shortcuts: <b>/</b> search · <b>N</b> new prompt.</div></footer>
+<footer><div class="wrap">Card numbers: A = Album 1 · B = Album 2 · M = newly added. Shortcuts: <b>/</b> search. Only the owner can add or edit prompts — unlock with the <b>lock</b> button at the top.</div></footer>
 
-<button class="fab" data-act="add" aria-label="Add prompt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+<button class="fab owner-only" data-act="add" aria-label="Add prompt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
 
 <dialog id="dlg" aria-labelledby="dlgTitle">
   <form class="dlg" id="form" method="dialog" novalidate>
@@ -317,6 +332,34 @@ footer b{color:var(--pop)}
     </div>
   </form>
 </dialog>
+<dialog id="login" aria-labelledby="loginTitle">
+  <form class="dlg" id="loginForm" novalidate>
+    <div class="dlg-head">
+      <h2 id="loginTitle">Owner login</h2>
+      <button type="button" class="icon-btn" data-act="close-login" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    </div>
+    <div class="dlg-body">
+      <p class="login-copy">Only the owner can add or edit prompts. Changes are saved to the GitHub repo and appear for everyone about a minute later.</p>
+      <label class="field"><span>GitHub access token</span>
+        <input type="password" name="token" required autocomplete="current-password" spellcheck="false" placeholder="github_pat_…">
+        <span class="hint"><span>Stored only in this browser. Never shared with visitors.</span></span>
+      </label>
+      <p class="login-err" id="loginErr" role="alert" hidden></p>
+      <details class="howto"><summary>How do I get a token?</summary>
+        <ol>
+          <li>Open <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">GitHub → Fine-grained tokens → Generate new token</a>.</li>
+          <li>Repository access: <b>Only select repositories</b> → <b>ai-photo-prompts</b>.</li>
+          <li>Permissions → Repository → <b>Contents: Read and write</b>.</li>
+          <li>Generate, copy the token, paste it above.</li>
+        </ol>
+      </details>
+    </div>
+    <div class="dlg-foot">
+      <button type="button" class="btn flat" data-act="close-login">Cancel</button>
+      <button type="submit" class="btn pop" id="loginBtn">Unlock</button>
+    </div>
+  </form>
+</dialog>
 <input type="file" id="file" accept="application/json,.json" hidden>
 <div class="toast" id="toast" role="status"></div>
 
@@ -328,7 +371,7 @@ const SEED=JSON.parse(document.getElementById('data').textContent);
 const KEY='ai-photo-prompts:'+location.pathname;
 const $=s=>document.querySelector(s), grid=$('#grid');
 const st={q:'',album:'',tag:'',dups:false,editing:null};
-const ALBUMS={A:'Album 1',B:'Album 2',M:'Mine'};
+const ALBUMS={A:'Album 1',B:'Album 2',M:'New'};
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const words=s=>(s.trim().match(/\S+/g)||[]).length;
 
@@ -344,17 +387,58 @@ const I={
   edit:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>'
 };
 
-// ---------- storage ----------
-let P, canStore=true;
+// ---------- data: GitHub repo is the source of truth ----------
+// Visitors read prompts.json from the site. The owner unlocks with a GitHub token
+// (write access to the repo); every add/edit is committed to prompts.json.
+const GH={owner:'Mrvishalpatil16-tech',repo:'ai-photo-prompts',path:'prompts.json',branch:'main'};
+const API=`https://api.github.com/repos/${GH.owner}/${GH.repo}`;
+const TOKEN_KEY='aipp-owner-token';
+let P=structuredClone(SEED), token=null, sha=null;
 function isValid(p){return p&&typeof p.title==='string'&&typeof p.text==='string'&&p.title.trim()&&p.text.trim()}
 function clean(p,id){return{id:String(id||p.id),title:p.title.trim(),text:p.text.trim(),note:p.note?String(p.note).trim()||null:null,dup:!!p.dup,tags:Array.isArray(p.tags)?[...new Set(p.tags.map(String).map(t=>t.trim()).filter(Boolean))]:[]}}
-try{const s=JSON.parse(localStorage.getItem(KEY));P=Array.isArray(s)&&s.every(isValid)?s:structuredClone(SEED)}catch(e){P=structuredClone(SEED);canStore=false}
-function persist(){
-  try{localStorage.setItem(KEY,JSON.stringify(P));canStore=true}catch(e){canStore=false}
-  const s=$('#saveState');s.classList.toggle('warn',!canStore);
-  s.lastElementChild.textContent=canStore?'Saved in this browser':'Not saved — use Backup';
-}
 function nextId(){let n=0;P.forEach(p=>{const m=/^M(\d+)$/.exec(p.id);if(m)n=Math.max(n,+m[1])});return'M'+(n+1)}
+const b64e=str=>{const b=new TextEncoder().encode(str);let r='';for(let i=0;i<b.length;i+=0x8000)r+=String.fromCharCode(...b.subarray(i,i+0x8000));return btoa(r)};
+const b64d=str=>new TextDecoder().decode(Uint8Array.from(atob(str.replace(/\s/g,'')),c=>c.charCodeAt(0)));
+async function gh(url,opt={}){
+  const r=await fetch(url,{...opt,cache:'no-store',headers:{Accept:'application/vnd.github+json',Authorization:`Bearer ${token}`,'X-GitHub-Api-Version':'2022-11-28',...(opt.headers||{})}});
+  if(!r.ok){const e=new Error((await r.json().catch(()=>({}))).message||r.statusText);e.status=r.status;throw e}
+  return r.json();
+}
+function setState(text,cls=''){const s=$('#saveState');s.className='save-state '+cls;s.lastElementChild.textContent=text}
+function setOwner(on){document.body.classList.toggle('owner',on);$('#lock').title=$('#lock').ariaLabel=on?'Owner mode — click to log out':'Owner login'}
+
+async function loadPublic(){
+  try{const r=await fetch(`${GH.path}?t=${Date.now()}`,{cache:'no-store'});if(!r.ok)return;const d=await r.json();if(Array.isArray(d)&&d.length&&d.every(isValid)){P=d.map(p=>clean(p));render();renderMarquee()}}catch(e){/* offline / file:// → keep built-in list */}
+}
+async function loadOwner(t){
+  token=t;
+  const repo=await gh(API);
+  if(!repo.permissions||!repo.permissions.push){const e=new Error('This token cannot write to '+GH.owner+'/'+GH.repo);e.status=403;throw e}
+  const f=await gh(`${API}/contents/${GH.path}?ref=${GH.branch}`);
+  sha=f.sha;const d=JSON.parse(b64d(f.content));
+  if(Array.isArray(d)&&d.every(isValid)){P=d.map(p=>clean(p))}
+  setOwner(true);setState('Owner mode');render();renderMarquee();
+}
+async function publish(msg){
+  setState('Publishing…','busy');
+  const body={message:msg,content:b64e(JSON.stringify(P,null,1)+'\n'),sha,branch:GH.branch};
+  const r=await gh(`${API}/contents/${GH.path}`,{method:'PUT',body:JSON.stringify(body)});
+  sha=r.content.sha;setState('Published · live in ~1 min');
+}
+// Run a change, publish it; roll back on failure.
+async function commit(change,msg){
+  const before=JSON.stringify(P);
+  change();render();renderMarquee();
+  try{await publish(msg);return true}
+  catch(e){
+    P=JSON.parse(before);render();renderMarquee();setState('Not published','warn');
+    if(e.status===401){logout();toast('Login expired — please log in again')}
+    else if(e.status===409||/sha/i.test(e.message)){toast('Someone changed the list — reloading, try again');loadOwner(token).catch(()=>{})}
+    else toast('Could not publish: '+e.message);
+    return false;
+  }
+}
+function logout(){token=null;sha=null;try{localStorage.removeItem(TOKEN_KEY)}catch(e){}setOwner(false);render()}
 
 // ---------- theme ----------
 try{const t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t}catch(e){}
@@ -386,11 +470,11 @@ function render(){
   <article class="card${p.dup?' dup':''}" data-id="${esc(p.id)}" style="${cvars(main)};--i:${i}">
     <div class="strip">
       <span class="id">${esc(p.id)}</span><span class="cat">${esc(main)}</span>
-      <button class="icon-btn" data-act="edit" aria-label="Edit ${esc(p.id)}" title="Edit">${I.edit}</button>
+      ${token?`<button class="icon-btn" data-act="edit" aria-label="Edit ${esc(p.id)}" title="Edit">${I.edit}</button>`:''}
     </div>
     <div class="body">
       <h3>${hl(p.title,q)}</h3>
-      <div class="tags">${p.id[0]==='M'?'<span class="tag mine">★ Yours</span>':''}${p.dup?'<span class="tag d">Duplicate</span>':''}${p.tags.map(t=>`<span class="tag" style="--tc:${col(t)[0]}"><i></i>${esc(t)}</span>`).join('')}</div>
+      <div class="tags">${p.id[0]==='M'?'<span class="tag mine">★ New</span>':''}${p.dup?'<span class="tag d">Duplicate</span>':''}${p.tags.map(t=>`<span class="tag" style="--tc:${col(t)[0]}"><i></i>${esc(t)}</span>`).join('')}</div>
       ${p.note?`<div class="note"><span aria-hidden="true">⚠</span><span>${esc(p.note[0].toUpperCase()+p.note.slice(1))}</span></div>`:''}
       <div class="text">${hl(p.text,q)}</div>
       <div class="foot">
@@ -399,7 +483,7 @@ function render(){
         ${p.dup?'':`<button class="copy" data-act="copy" aria-label="Copy prompt ${esc(p.id)}">${I.copy}<span>Copy</span></button>`}
       </div>
     </div>
-  </article>`}).join(''):`<div class="empty"><b>Nothing here</b>Try a different word, clear the filters — or add it yourself.<br><button class="btn pop" data-act="add">Add a prompt</button></div>`;
+  </article>`}).join(''):`<div class="empty"><b>Nothing here</b>Try a different word or clear the filters.${token?'<br><button class="btn pop" data-act="add">Add a prompt</button>':''}</div>`;
   grid.querySelectorAll('.text').forEach(t=>{if(t.scrollHeight>t.clientHeight+2)t.parentNode.querySelector('.more').hidden=false});
 }
 
@@ -442,20 +526,26 @@ function openForm(p){
   dlg.showModal();F.title.focus();
 }
 F.text.addEventListener('input',()=>$('#wc').textContent=words(F.text.value)+' words');
-form.addEventListener('submit',e=>{
+form.addEventListener('submit',async e=>{
   e.preventDefault();
   const title=F.title.value.trim(), text=F.text.value.trim();
   if(!title){F.title.focus();F.title.setCustomValidity('Give the prompt a title');F.title.reportValidity();F.title.setCustomValidity('');return}
   if(!text){F.text.focus();F.text.setCustomValidity('Paste the prompt text');F.text.reportValidity();F.text.setCustomValidity('');return}
   const tags=[...form.querySelectorAll('[name=tag]:checked')].map(i=>i.value);
   F.newtag.value.split(',').map(s=>s.trim()).filter(Boolean).forEach(t=>tags.includes(t)||tags.push(t));
-  const editing=st.editing;let id;
-  if(editing){const p=P.find(x=>x.id===editing);Object.assign(p,clean({...p,title,text,tags,note:F.note.value}));id=p.id}
-  else{id=nextId();P.unshift(clean({title,text,tags,note:F.note.value},id));st.q='';$('#q').value='';st.tag='';st.album=''}
-  persist();dlg.close();render();renderMarquee();
+  if(!token){dlg.close();return}
+  const editing=st.editing, id=editing||nextId(), note=F.note.value;
+  $('#submit').disabled=true;
+  const ok=await commit(()=>{
+    if(editing){const p=P.find(x=>x.id===editing);Object.assign(p,clean({...p,title,text,tags,note}))}
+    else{P.unshift(clean({title,text,tags,note},id));st.q='';$('#q').value='';st.tag='';st.album=''}
+  },`${editing?'Edit':'Add'} prompt ${id}: ${title}`);
+  $('#submit').disabled=false;
+  if(!ok)return;
+  dlg.close();
   const card=grid.querySelector(`[data-id="${CSS.escape(id)}"]`);
   if(card){card.scrollIntoView({block:'center',behavior:'smooth'});card.classList.add('flash')}
-  toast(editing?`Updated ${id}`:`Added ${id} · ${title}`);
+  toast(editing?`Updated ${id} — live for everyone in ~1 min`:`Added ${id} — live for everyone in ~1 min`);
 });
 dlg.addEventListener('click',e=>{if(e.target===dlg)dlg.close()});
 
@@ -466,6 +556,9 @@ document.addEventListener('click',async e=>{
   const card=b.closest('.card'), p=card&&P.find(x=>x.id===card.dataset.id), act=b.dataset.act;
   if(act==='jump'){jump(b.dataset.id);return}
   const menu=b.closest('details');if(menu)menu.open=false;
+  if(act==='lock'){if(token){if(confirm('Log out of owner mode on this browser?')){logout();toast('Logged out')}}else openLogin();return}
+  if(act==='close-login'){$('#login').close();return}
+  if((act==='add'||act==='edit'||act==='import')&&!token)return;
   if(act==='add')openForm(null);
   else if(act==='close')dlg.close();
   else if(act==='edit')openForm(p);
@@ -486,8 +579,9 @@ $('#file').addEventListener('change',async e=>{
     const data=JSON.parse(await f.text());
     if(!Array.isArray(data))throw 0;
     const valid=data.filter(isValid);if(!valid.length)throw 0;
-    {let added=0;valid.forEach(p=>{if(!P.some(x=>x.text.trim()===p.text.trim())){const id=p.id&&!P.some(x=>x.id===p.id)?p.id:nextId();P.unshift(clean(p,id));added++}});toast(`Merged ${added} new prompt${added===1?'':'s'}`)}
-    persist();render();renderMarquee();
+    let added=0;
+    const ok=await commit(()=>{valid.forEach(p=>{if(!P.some(x=>x.text.trim()===p.text.trim())){const id=p.id&&!P.some(x=>x.id===p.id)?p.id:nextId();P.unshift(clean(p,id));added++}})},'Import prompts');
+    if(ok)toast(`Merged ${added} new prompt${added===1?'':'s'}`);
   }catch(err){toast('That file is not a valid prompts export')}
 });
 
@@ -496,13 +590,32 @@ $('#seg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)
 $('#q').addEventListener('input',e=>{st.q=e.target.value;render()});
 $('#dups').addEventListener('change',e=>{st.dups=e.target.checked;render()});
 addEventListener('keydown',e=>{
-  if(dlg.open)return;
+  if(dlg.open||$('#login').open)return;
   const typing=/INPUT|TEXTAREA/.test(document.activeElement.tagName);
   if(e.key==='/'&&!typing){e.preventDefault();$('#q').focus()}
-  else if((e.key==='n'||e.key==='N')&&!typing&&!e.metaKey&&!e.ctrlKey&&!e.altKey){e.preventDefault();openForm(null)}
+  else if(token&&(e.key==='n'||e.key==='N')&&!typing&&!e.metaKey&&!e.ctrlKey&&!e.altKey){e.preventDefault();openForm(null)}
   else if(e.key==='Escape'&&document.activeElement===$('#q')){$('#q').value='';st.q='';render();$('#q').blur()}
 });
-persist();render();renderMarquee();
+// ---------- owner login ----------
+const login=$('#login'), LF=$('#loginForm');
+function openLogin(){LF.reset();$('#loginErr').hidden=true;login.showModal();LF.elements.token.focus()}
+login.addEventListener('click',e=>{if(e.target===login)login.close()});
+LF.addEventListener('submit',async e=>{
+  e.preventDefault();
+  const t=LF.elements.token.value.trim();if(!t){LF.elements.token.focus();return}
+  const btn=$('#loginBtn');btn.disabled=true;btn.textContent='Checking…';$('#loginErr').hidden=true;
+  try{await loadOwner(t);try{localStorage.setItem(TOKEN_KEY,t)}catch(_){}login.close();toast('Owner mode unlocked')}
+  catch(err){token=null;const m=$('#loginErr');m.hidden=false;m.textContent=err.status===401?'That token is not valid.':err.status===404?'Repo not found for this token — give it access to '+GH.repo+'.':err.status===403?'This token does not have write access to '+GH.repo+'.':'Could not log in: '+err.message}
+  finally{btn.disabled=false;btn.textContent='Unlock'}
+});
+
+// ---------- boot ----------
+render();renderMarquee();
+(async()=>{
+  let t=null;try{t=localStorage.getItem(TOKEN_KEY)}catch(e){}
+  if(t){try{await loadOwner(t);return}catch(e){if(e.status===401||e.status===403)logout()}}
+  loadPublic();
+})();
 </script>
 </body>
 </html>
