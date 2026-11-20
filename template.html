@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>AI Photo Prompts — 81 Copy-Paste Prompts for Portraits, Posters &amp; Couple Photos</title>
-<meta name="description" content="Free library of 81 ready-to-use AI photo editing prompts for ChatGPT, Gemini and other AI image tools: portraits, saree posters, birthday posters, couple photos, black &amp; white and vintage edits. Search, filter and copy in one click.">
+<title>AI Photo Prompts — __COUNT__ Copy-Paste Prompts for Portraits, Posters &amp; Couple Photos</title>
+<meta name="description" content="Free library of __COUNT__ ready-to-use AI photo editing prompts for ChatGPT, Gemini and other AI image tools: portraits, saree posters, birthday posters, couple photos, festive, cinematic, black &amp; white and vintage edits. Search, filter and copy in one click.">
 <meta name="robots" content="index,follow,max-image-preview:large">
 <link rel="canonical" href="https://mrvishalpatil16-tech.github.io/ai-photo-prompts/">
 <meta name="theme-color" content="#2b2bff">
@@ -14,16 +14,16 @@
 <link rel="manifest" href="site.webmanifest">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="AI Photo Prompts">
-<meta property="og:title" content="AI Photo Prompts — 81 Copy-Paste Prompts">
+<meta property="og:title" content="AI Photo Prompts — __COUNT__ Copy-Paste Prompts">
 <meta property="og:description" content="Ready-to-use AI photo editing prompts for portraits, posters, saree, birthday and couple photos. Search, filter and copy in one click.">
 <meta property="og:url" content="https://mrvishalpatil16-tech.github.io/ai-photo-prompts/">
 <meta property="og:image" content="https://mrvishalpatil16-tech.github.io/ai-photo-prompts/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="AI Photo Prompts — 81 ready to copy">
+<meta property="og:image:alt" content="AI Photo Prompts — __COUNT__ ready to copy">
 <meta property="og:locale" content="en_IN">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="AI Photo Prompts — 81 Copy-Paste Prompts">
+<meta name="twitter:title" content="AI Photo Prompts — __COUNT__ Copy-Paste Prompts">
 <meta name="twitter:description" content="Ready-to-use AI photo editing prompts for portraits, posters, saree, birthday and couple photos.">
 <meta name="twitter:image" content="https://mrvishalpatil16-tech.github.io/ai-photo-prompts/og-image.png">
 <script type="application/ld+json" id="ld">__LD__</script>
@@ -314,7 +314,7 @@ footer b{color:var(--pop)}
   <div class="grid" id="grid"><!--pre-->__PRE__<!--/pre--></div>
 </main>
 
-<footer><div class="wrap">Card numbers: A = Album 1 · B = Album 2 · M = newly added. Shortcuts: <b>/</b> search. Only the owner can add or edit prompts — unlock with the <b>lock</b> button at the top.</div></footer>
+<footer><div class="wrap">Card numbers: C = Pro Picks · A = Album 1 · B = Album 2 · M = newly added. Shortcuts: <b>/</b> search. Only the owner can add or edit prompts — unlock with the <b>lock</b> button at the top.</div></footer>
 
 <button class="fab owner-only" data-act="add" aria-label="Add prompt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
 
@@ -387,12 +387,12 @@ const SEED=JSON.parse(document.getElementById('data').textContent);
 const KEY='ai-photo-prompts:'+location.pathname;
 const $=s=>document.querySelector(s), grid=$('#grid');
 const st={q:'',album:'',tag:'',dups:false,editing:null};
-const ALBUMS={A:'Album 1',B:'Album 2',M:'New'};
+const ALBUMS={C:'Pro Picks',A:'Album 1',B:'Album 2',M:'New'};
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const words=s=>(s.trim().match(/\S+/g)||[]).length;
 
 // Category colours — [background, text-on-background]
-const PAL={'Poster & Collage':['#ff5a36','#0d0d0f'],'Portrait':['#ffc233','#0d0d0f'],'Art & Illustration':['#b794ff','#0d0d0f'],'Couple':['#ff7ab8','#0d0d0f'],'Black & White':['#a3a3ad','#0d0d0f'],'Saree & Ethnic':['#00c389','#0d0d0f'],'Vintage':['#d4a373','#0d0d0f'],'Birthday':['#3ddcff','#0d0d0f'],'Travel':['#4d7cff','#ffffff'],'Uncategorised':['#d9d7d0','#0d0d0f']};
+const PAL={'Poster & Collage':['#ff5a36','#0d0d0f'],'Portrait':['#ffc233','#0d0d0f'],'Art & Illustration':['#b794ff','#0d0d0f'],'Couple':['#ff7ab8','#0d0d0f'],'Black & White':['#a3a3ad','#0d0d0f'],'Saree & Ethnic':['#00c389','#0d0d0f'],'Vintage':['#d4a373','#0d0d0f'],'Birthday':['#3ddcff','#0d0d0f'],'Travel':['#4d7cff','#ffffff'],'Cinematic':['#c6f432','#0d0d0f'],'Festive':['#ff9f1c','#0d0d0f'],'Fashion':['#2ec4b6','#0d0d0f'],'Uncategorised':['#d9d7d0','#0d0d0f']};
 const EXTRA=[['#c6f432','#0d0d0f'],['#ff9f1c','#0d0d0f'],['#f15bb5','#0d0d0f'],['#2ec4b6','#0d0d0f'],['#9b5de5','#ffffff'],['#e63946','#ffffff']];
 function col(t){if(PAL[t])return PAL[t];let h=0;for(const ch of t)h=(h*31+ch.charCodeAt(0))|0;return EXTRA[Math.abs(h)%EXTRA.length]}
 const cvars=t=>{const[c,o]=col(t);return`--c:${c};--on:${o}`};

@@ -60,9 +60,10 @@ def build():
         (ROOT / "template.html").read_text(encoding="utf-8")
         .replace("__LD__", json.dumps(ld, ensure_ascii=False).replace("</", "<\\/"))
         .replace("__PRE__", pre)
+        .replace("__COUNT__", str(len(uniq)))
         .replace("__DATA__", json.dumps(prompts, ensure_ascii=False).replace("</", "<\\/"))
     )
-    assert "__LD__" not in out and "__PRE__" not in out and "__DATA__" not in out
+    assert "__COUNT__" not in out and "__LD__" not in out and "__PRE__" not in out and "__DATA__" not in out
     (ROOT / "index.html").write_text(out, encoding="utf-8")
 
     today = datetime.date.today().isoformat()
