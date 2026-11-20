@@ -92,12 +92,7 @@ body:not(.owner) .owner-only{display:none!important}
 body.owner #lock{background:var(--pop)}
 .login-copy{margin:0;color:var(--ink-2)}
 .login-err{margin:0;padding:10px 12px;border-radius:10px;background:#ffe0e0;color:#8a1010;font-size:13.5px;font-weight:500}
-.howto{font-size:13.5px;color:var(--ink-2)}
-.howto summary{cursor:pointer;font-weight:700}
-.howto ol{margin:10px 0 0;padding-left:20px;display:grid;gap:4px}
-.howto a{color:var(--hero);font-weight:700}
-:root[data-theme="dark"] .howto a{color:#9fa6ff}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .howto a{color:#9fa6ff}}
+.field .hint a{color:var(--hero);font-weight:700}
 .save-state.busy i{background:var(--pop);animation:blink .8s infinite alternate}
 @keyframes blink{to{opacity:.3}}
 
@@ -260,6 +255,7 @@ footer b{color:var(--pop)}
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 3v12m0 0-4-4m4 4 4-4M5 21h14"/></svg>Backup
           </summary>
           <div class="menu-list">
+            <button data-act="chpw"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10.5" width="16" height="10.5" rx="2.5"/><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/></svg>Change password</button>
             <button data-act="save-html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>Save as HTML file</button>
             <button data-act="export"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v12m0 0-4-4m4 4 4-4M5 21h14"/></svg>Export prompts (.json)</button>
             <button data-act="import"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 15V3m0 0L8 7m4-4 4 4M5 21h14"/></svg>Import prompts (.json)</button>
@@ -339,20 +335,18 @@ footer b{color:var(--pop)}
       <button type="button" class="icon-btn" data-act="close-login" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
     </div>
     <div class="dlg-body">
-      <p class="login-copy">Only the owner can add or edit prompts. Changes are saved to the GitHub repo and appear for everyone about a minute later.</p>
-      <label class="field"><span>GitHub access token</span>
-        <input type="password" name="token" required autocomplete="current-password" spellcheck="false" placeholder="github_pat_…">
-        <span class="hint"><span>Stored only in this browser. Never shared with visitors.</span></span>
+      <p class="login-copy" id="loginCopy"></p>
+      <label class="field" data-mode="setup"><span>GitHub token <em>(one time only)</em></span>
+        <input type="password" name="token" autocomplete="off" spellcheck="false" placeholder="github_pat_…">
+        <span class="hint"><span>Need one? <a href="https://github.com/settings/personal-access-tokens/new?name=ai-photo-prompts-owner&amp;target_name=Mrvishalpatil16-tech&amp;expires_in=none&amp;contents=write" target="_blank" rel="noopener">Create a token</a> with access to <b>ai-photo-prompts</b> and <b>Contents: Read and write</b>.</span></span>
+      </label>
+      <label class="field"><span id="pwLabel">Password</span>
+        <input type="password" name="pw" autocomplete="current-password" placeholder="••••••••">
+      </label>
+      <label class="field" data-mode="setup change"><span>Confirm password</span>
+        <input type="password" name="pw2" autocomplete="new-password" placeholder="••••••••">
       </label>
       <p class="login-err" id="loginErr" role="alert" hidden></p>
-      <details class="howto"><summary>How do I get a token?</summary>
-        <ol>
-          <li>Open <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">GitHub → Fine-grained tokens → Generate new token</a>.</li>
-          <li>Repository access: <b>Only select repositories</b> → <b>ai-photo-prompts</b>.</li>
-          <li>Permissions → Repository → <b>Contents: Read and write</b>.</li>
-          <li>Generate, copy the token, paste it above.</li>
-        </ol>
-      </details>
     </div>
     <div class="dlg-foot">
       <button type="button" class="btn flat" data-act="close-login">Cancel</button>
@@ -558,6 +552,7 @@ document.addEventListener('click',async e=>{
   const menu=b.closest('details');if(menu)menu.open=false;
   if(act==='lock'){if(token){if(confirm('Log out of owner mode on this browser?')){logout();toast('Logged out')}}else openLogin();return}
   if(act==='close-login'){$('#login').close();return}
+  if(act==='chpw'){if(token)openLogin('change');return}
   if((act==='add'||act==='edit'||act==='import')&&!token)return;
   if(act==='add')openForm(null);
   else if(act==='close')dlg.close();
@@ -596,17 +591,63 @@ addEventListener('keydown',e=>{
   else if(token&&(e.key==='n'||e.key==='N')&&!typing&&!e.metaKey&&!e.ctrlKey&&!e.altKey){e.preventDefault();openForm(null)}
   else if(e.key==='Escape'&&document.activeElement===$('#q')){$('#q').value='';st.q='';render();$('#q').blur()}
 });
-// ---------- owner login ----------
-const login=$('#login'), LF=$('#loginForm');
-function openLogin(){LF.reset();$('#loginErr').hidden=true;login.showModal();LF.elements.token.focus()}
+// ---------- owner login (password) ----------
+// owner.json holds the GitHub token encrypted with the owner's password
+// (PBKDF2-SHA256 600k → AES-256-GCM). The password never leaves the browser.
+const OWNER_FILE='owner.json', ITER=600000;
+const u8b64=u=>{let r='';u.forEach(x=>r+=String.fromCharCode(x));return btoa(r)};
+const b64u8=str=>Uint8Array.from(atob(str),c=>c.charCodeAt(0));
+async function deriveKey(pw,salt,iter){const base=await crypto.subtle.importKey('raw',new TextEncoder().encode(pw),'PBKDF2',false,['deriveKey']);return crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:iter,hash:'SHA-256'},base,{name:'AES-GCM',length:256},false,['encrypt','decrypt'])}
+async function seal(tok,pw){const salt=crypto.getRandomValues(new Uint8Array(16)),iv=crypto.getRandomValues(new Uint8Array(12));const k=await deriveKey(pw,salt,ITER);const ct=new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv},k,new TextEncoder().encode(tok)));return{v:1,kdf:'PBKDF2-SHA256',iter:ITER,salt:u8b64(salt),iv:u8b64(iv),ct:u8b64(ct)}}
+async function unseal(o,pw){const k=await deriveKey(pw,b64u8(o.salt),o.iter);return new TextDecoder().decode(await crypto.subtle.decrypt({name:'AES-GCM',iv:b64u8(o.iv)},k,b64u8(o.ct)))}
+async function getOwnerFile(){try{const r=await fetch(`${OWNER_FILE}?t=${Date.now()}`,{cache:'no-store'});if(!r.ok)return null;const o=await r.json();return o&&o.ct?o:null}catch(e){return null}}
+async function writeOwnerFile(o){
+  let cur=null;try{cur=(await gh(`${API}/contents/${OWNER_FILE}?ref=${GH.branch}`)).sha}catch(e){if(e.status!==404)throw e}
+  await gh(`${API}/contents/${OWNER_FILE}`,{method:'PUT',body:JSON.stringify({message:'Update owner password',content:b64e(JSON.stringify(o)+'\n'),branch:GH.branch,...(cur?{sha:cur}:{})})});
+}
+
+const login=$('#login'), LF=$('#loginForm'), LE=LF.elements;
+let mode='login';
+const COPY={
+  login:['Owner login','Enter your password to add or edit prompts.','Unlock','Password'],
+  setup:['Set password','One-time setup: paste your GitHub token once and choose a password. After this you only need the password.','Save password','New password'],
+  change:['Change password','Choose a new owner password.','Save password','New password']
+};
+async function openLogin(m){
+  if(!m){m=(!/[?&]setup\b/.test(location.search)&&await getOwnerFile())?'login':'setup'}
+  mode=m;const[t,c,btn,pl]=COPY[m];
+  $('#loginTitle').textContent=t;$('#loginCopy').textContent=c;$('#loginBtn').textContent=btn;$('#pwLabel').textContent=pl;
+  LF.querySelectorAll('[data-mode]').forEach(el=>el.hidden=!el.dataset.mode.split(' ').includes(m));
+  LE.pw.autocomplete=m==='login'?'current-password':'new-password';
+  LF.reset();$('#loginErr').hidden=true;login.showModal();(m==='setup'?LE.token:LE.pw).focus();
+}
 login.addEventListener('click',e=>{if(e.target===login)login.close()});
+function loginError(msg){const m=$('#loginErr');m.hidden=false;m.textContent=msg}
 LF.addEventListener('submit',async e=>{
-  e.preventDefault();
-  const t=LF.elements.token.value.trim();if(!t){LF.elements.token.focus();return}
-  const btn=$('#loginBtn');btn.disabled=true;btn.textContent='Checking…';$('#loginErr').hidden=true;
-  try{await loadOwner(t);try{localStorage.setItem(TOKEN_KEY,t)}catch(_){}login.close();toast('Owner mode unlocked')}
-  catch(err){token=null;const m=$('#loginErr');m.hidden=false;m.textContent=err.status===401?'That token is not valid.':err.status===404?'Repo not found for this token — give it access to '+GH.repo+'.':err.status===403?'This token does not have write access to '+GH.repo+'.':'Could not log in: '+err.message}
-  finally{btn.disabled=false;btn.textContent='Unlock'}
+  e.preventDefault();$('#loginErr').hidden=true;
+  const pw=LE.pw.value, btn=$('#loginBtn'), label=btn.textContent;
+  if(!pw){LE.pw.focus();return}
+  if(mode!=='login'){
+    if(pw.length<8)return loginError('Use at least 8 characters.');
+    if(pw!==LE.pw2.value)return loginError('Passwords do not match.');
+    if(mode==='setup'&&!LE.token.value.trim())return loginError('Paste your GitHub token.');
+  }
+  btn.disabled=true;btn.textContent=mode==='login'?'Unlocking…':'Saving…';
+  try{
+    if(mode==='login'){
+      const o=await getOwnerFile();if(!o){openLogin('setup');return}
+      let t;try{t=await unseal(o,pw)}catch(_){return loginError('Wrong password.')}
+      try{await loadOwner(t)}catch(err){token=null;return loginError(err.status===401?'The saved GitHub token has expired. Open this page with ?setup at the end of the address to set it again.':'Could not log in: '+err.message)}
+      toast('Owner mode unlocked');
+    }else{
+      if(mode==='setup'){try{await loadOwner(LE.token.value.trim())}catch(err){token=null;setOwner(false);return loginError(err.status===401?'That GitHub token is not valid.':err.status===403||err.status===404?'That token cannot write to ai-photo-prompts.':'Could not check token: '+err.message)}}
+      await writeOwnerFile(await seal(token,pw));
+      toast(mode==='setup'?'Password set — owner mode unlocked':'Password changed');
+    }
+    try{localStorage.setItem(TOKEN_KEY,token)}catch(_){}
+    login.close();
+  }catch(err){loginError('Something went wrong: '+err.message)}
+  finally{btn.disabled=false;btn.textContent=label}
 });
 
 // ---------- boot ----------

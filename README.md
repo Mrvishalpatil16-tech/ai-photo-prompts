@@ -7,12 +7,15 @@ A searchable, editable library of 81 AI photo-editing prompts. Everything is in 
 - Search, filter by album and by style category
 - One-click copy on every prompt
 - Two auto-scrolling rows of prompt titles (pause on hover, click to jump)
-- Owner-only add/edit: unlock with the lock button using a GitHub token that has write access to this repo; changes are committed to `prompts.json` and go live for everyone
+- Owner-only add/edit: unlock with the lock button and your password; changes are committed to `prompts.json` and go live for everyone
 - Visitors can browse, search and copy only
 - Light/dark mode, works on phones
 
 Shortcuts: `/` search · `N` new prompt (owner)
 
-## Owner token
+## Owner password
 
-Create a [fine-grained token](https://github.com/settings/personal-access-tokens/new): repository access **Only select repositories → ai-photo-prompts**, permission **Contents: Read and write**. Paste it in the Owner login dialog. It is stored only in that browser.
+`owner.json` holds a GitHub token (repo-scoped, Contents: read & write) encrypted with the owner password (PBKDF2-SHA256, 600k iterations → AES-256-GCM). The password never leaves the browser.
+
+- First time / token expired: open the site with `?setup` at the end of the address, paste the token, choose a password.
+- Change password: owner mode → Backup → Change password.
