@@ -2,7 +2,7 @@
 
 A searchable, editable library of 81 AI photo-editing prompts. Everything is in a single `index.html` file.
 
-**Live:** https://vp3742.github.io/ai-photo-prompts/
+**Live:** https://mrvishalpatil16-tech.github.io/ai-photo-prompts/
 
 - Search, filter by album and by style category
 - One-click copy on every prompt
